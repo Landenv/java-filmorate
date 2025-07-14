@@ -5,7 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -17,46 +18,32 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, Object> handleValidationException(ValidationException ex) {
-        log.warn("{}: {}", VALIDATION_ERROR, ex.getMessage());
-        return Map.of(
-                "error", VALIDATION_ERROR,
-                "message", ex.getMessage()
-        );
+    public ErrorResponse handleValidationException(ValidationException exception) {
+        log.warn("Validation error: {}", exception.getMessage());
+        return ErrorResponse.withMessage(VALIDATION_ERROR, exception.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, Object> handleNotFoundException(NotFoundException ex) {
-        log.warn("{}: {}", NOT_FOUND_ERROR, ex.getMessage());
-        return Map.of(
-                "error", NOT_FOUND_ERROR,
-                "message", ex.getMessage()
-        );
+    public ErrorResponse handleNotFoundException(NotFoundException exception) {
+        log.warn("{}: {}", NOT_FOUND_ERROR, exception.getMessage());
+        return new ErrorResponse(NOT_FOUND_ERROR, exception.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+    public ErrorResponse handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         List<String> errors = ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> String.format("%s: %s", error.getField(), error.getDefaultMessage()))
                 .collect(Collectors.toList());
-
-        log.warn("{}: {}", VALIDATION_ERROR, errors);
-
-        return Map.of(
-                "error", VALIDATION_ERROR,
-                "errors", errors
-        );
+        log.warn("Validation errors: {}", errors);
+        return ErrorResponse.withErrors(VALIDATION_ERROR, errors);
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Map<String, Object> handleInternalError(Exception ex) {
-        log.error("{}: {}", SERVER_ERROR, ex.getMessage(), ex);
-        return Map.of(
-                "error", SERVER_ERROR,
-                "message", "Произошла непредвиденная ошибка"
-        );
+    public ErrorResponse handleInternalError(Exception exception) {
+        log.error("{}: {}", SERVER_ERROR, exception.getMessage(), exception);
+        return new ErrorResponse(SERVER_ERROR, "Произошла непредвиденная ошибка");
     }
 }
