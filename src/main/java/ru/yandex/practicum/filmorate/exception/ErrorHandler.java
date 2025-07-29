@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 
 import java.util.List;
@@ -32,18 +34,19 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-        List<String> errors = ex.getBindingResult().getFieldErrors().stream()
+    public ErrorResponse handleMethodArgumentNotValid(MethodArgumentNotValidException exception) {
+        List<String> errors = exception.getBindingResult().getFieldErrors().stream()
                 .map(error -> String.format("%s: %s", error.getField(), error.getDefaultMessage()))
                 .collect(Collectors.toList());
         log.warn("Validation errors: {}", errors);
         return ErrorResponse.withErrors(VALIDATION_ERROR, errors);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(Exception.class) // Явно указали тип
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleInternalError(Exception exception) {
-        log.error("{}: {}", SERVER_ERROR, exception.getMessage(), exception);
-        return new ErrorResponse(SERVER_ERROR, "Произошла непредвиденная ошибка");
+        log.error("{}: {}", SERVER_ERROR, exception.getMessage(), exception); // Теперь точно сработает
+        return new ErrorResponse(SERVER_ERROR, "Внутренняя ошибка сервера");
     }
+
 }
