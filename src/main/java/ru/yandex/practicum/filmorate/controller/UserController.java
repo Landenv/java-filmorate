@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -45,7 +46,7 @@ public class UserController {
     }
 
     @GetMapping
-    public Collection<User> getAll() {
+    public List<User> getAll() {
         return userService.getAll();
     }
 

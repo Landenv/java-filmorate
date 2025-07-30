@@ -5,11 +5,9 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -38,13 +36,13 @@ public class FilmService {
         return filmStorage.getById(id);
     }
 
-    public Collection<Film> getAll() {
+    public List<Film> getAll() {
         return filmStorage.getAll();
     }
 
     public void addLike(int filmId, int userId) {
         Film film = filmStorage.getById(filmId);
-        User user = userStorage.getById(userId);
+        userStorage.getById(userId);
 
         if (film.getLikes().contains(userId)) {
             throw new ValidationException("Пользователь уже поставил лайк");
@@ -63,15 +61,14 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilms(int count) {
-        List<Film> allFilms = filmStorage.getAll().stream()
+        return filmStorage.getAll().stream()
                 .peek(film -> {
                     if (film.getLikes() == null) {
-                        film.setLikes(new HashSet<>()); // Инициализируем, если null
+                        film.setLikes(new HashSet<>());
                     }
                 })
-                .sorted(Comparator.comparingInt(f -> -f.getLikes().size()))
+                .sorted(Comparator.comparingInt(film -> -film.getLikes().size()))
                 .limit(count)
                 .toList();
-        return allFilms;
     }
 }

@@ -6,8 +6,8 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -31,7 +31,7 @@ public class UserService {
         return userStorage.getById(id);
     }
 
-    public Collection<User> getAll() {
+    public List<User> getAll() {
         return userStorage.getAll();
     }
 
@@ -51,24 +51,18 @@ public class UserService {
     }
 
     public Collection<User> getFriends(int id) {
-        User user = userStorage.getById(id);
-        Set<User> friends = new HashSet<>();
-        for (Integer friendId : user.getFriends()) {
-            friends.add(userStorage.getById(friendId));
-        }
-        return friends;
+        return userStorage.getById(id).getFriends().stream()
+                .map(userStorage::getById)
+                .collect(Collectors.toSet());
     }
 
     public Collection<User> getCommonFriends(int id, int otherId) {
         User user = userStorage.getById(id);
         User otherUser = userStorage.getById(otherId);
-        Set<User> commonFriends = new HashSet<>();
 
-        for (Integer friendId : user.getFriends()) {
-            if (otherUser.getFriends().contains(friendId)) {
-                commonFriends.add(userStorage.getById(friendId));
-            }
-        }
-        return commonFriends;
+        return user.getFriends().stream()
+                .filter(friendId -> otherUser.getFriends().contains(friendId))
+                .map(userStorage::getById)
+                .collect(Collectors.toSet());
     }
 }
