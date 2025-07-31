@@ -13,6 +13,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -23,6 +25,9 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class User {
     private int id;
+
+    @Builder.Default
+    private Set<Integer> friends = new HashSet<>();
 
     @NotBlank(message = "Электронная почта не может быть пустой")
     @Email(message = "Электронная почта должна содержать символ @")
@@ -44,4 +49,5 @@ public class User {
     public void setName(String name) {
         this.name = "".equals(name) ? null : name;
     }
+
 }
