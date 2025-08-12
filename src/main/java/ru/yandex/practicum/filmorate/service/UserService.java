@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,19 +49,19 @@ public class UserService {
         friend.getFriends().remove(userId);
     }
 
-    public Collection<User> getFriends(int id) {
+    public List<User> getFriends(int id) {
         return userStorage.getById(id).getFriends().stream()
                 .map(userStorage::getById)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList()); // Изменено на toList()
     }
 
-    public Collection<User> getCommonFriends(int id, int otherId) {
+    public List<User> getCommonFriends(int id, int otherId) {
         User user = userStorage.getById(id);
         User otherUser = userStorage.getById(otherId);
 
         return user.getFriends().stream()
                 .filter(friendId -> otherUser.getFriends().contains(friendId))
                 .map(userStorage::getById)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList()); // Изменено на toList()
     }
 }
