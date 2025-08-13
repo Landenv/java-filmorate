@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PastOrPresent;
@@ -13,7 +14,9 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -26,6 +29,12 @@ import java.util.Set;
 public class User {
     private int id;
 
+    // Основное хранилище статусов дружбы
+    @JsonIgnore
+    @Builder.Default
+    private final Map<Integer, FriendshipStatus> friendshipStatuses = new HashMap<>();
+
+    // Виртуальное поле для обратной совместимости
     @Builder.Default
     private Set<Integer> friends = new HashSet<>();
 
@@ -48,6 +57,11 @@ public class User {
 
     public void setName(String name) {
         this.name = "".equals(name) ? null : name;
+    }
+
+    // Метод для синхронизации friends с friendshipStatuses
+    public Set<Integer> getFriends() {
+        return friendshipStatuses.keySet();
     }
 
 }

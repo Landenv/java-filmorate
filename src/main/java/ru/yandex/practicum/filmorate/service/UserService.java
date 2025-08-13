@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.FriendshipStatus;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -38,15 +39,26 @@ public class UserService {
     public void addFriend(int userId, int friendId) {
         User user = userStorage.getById(userId);
         User friend = userStorage.getById(friendId);
-        user.getFriends().add(friendId);
-        friend.getFriends().add(userId);
+
+        user.getFriendshipStatuses().put(friendId, FriendshipStatus.PENDING);
+        friend.getFriendshipStatuses().put(userId, FriendshipStatus.PENDING);
     }
 
     public void removeFriend(int userId, int friendId) {
         User user = userStorage.getById(userId);
         User friend = userStorage.getById(friendId);
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
+
+        user.getFriendshipStatuses().remove(friendId);
+        friend.getFriendshipStatuses().remove(userId);
+    }
+
+    // Новый метод для подтверждения дружбы
+    public void confirmFriendship(int userId, int friendId) {
+        User user = userStorage.getById(userId);
+        User friend = userStorage.getById(friendId);
+
+        user.getFriendshipStatuses().put(friendId, FriendshipStatus.CONFIRMED);
+        friend.getFriendshipStatuses().put(userId, FriendshipStatus.CONFIRMED);
     }
 
     public List<User> getFriends(int id) {
@@ -63,5 +75,12 @@ public class UserService {
                 .filter(friendId -> otherUser.getFriends().contains(friendId))
                 .map(userStorage::getById)
                 .collect(Collectors.toList()); // Изменено на toList()
+    }
+
+    // Новый метод для получения статуса дружбы
+    public FriendshipStatus getFriendshipStatus(int userId, int friendId) {
+        return userStorage.getById(userId)
+                .getFriendshipStatuses()
+                .getOrDefault(friendId, null);
     }
 }
