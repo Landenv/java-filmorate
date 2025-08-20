@@ -23,8 +23,9 @@ SELECT * FROM users;
 #### 2. Фильмы
 **Топ-5 популярных фильмов:**
 ```sql
-SELECT f.*, COUNT(l.user_id) AS likes_count
+SELECT f.*, m.mpa_name, COUNT(l.user_id) AS likes_count
 FROM films f
+JOIN mpa_ratings m ON f.mpa_id = m.mpa_id
 LEFT JOIN likes l ON f.film_id = l.film_id
 GROUP BY f.film_id
 ORDER BY likes_count DESC
@@ -33,17 +34,20 @@ LIMIT 5;
 
 **Фильмы по жанру:**
 ```sql
-SELECT f.* 
+SELECT f.*, m.mpa_name
 FROM films f
+JOIN mpa_ratings m ON f.mpa_id = m.mpa_id
 JOIN film_genres fg ON f.film_id = fg.film_id
-WHERE fg.genre_name = 'COMEDY';
+JOIN genres g ON fg.genre_id = g.genre_id
+WHERE g.genre_name = 'Комедия';
 ```
 
 **Фильмы по рейтингу MPA:**
 ```sql
-SELECT f.* 
+SELECT f.*, m.mpa_name, m.description
 FROM films f
-WHERE f.mpa_name = 'PG';
+JOIN mpa_ratings m ON f.mpa_id = m.mpa_id
+WHERE m.mpa_name = 'PG';
 ```
 
 #### 3. Социальные функции
@@ -52,5 +56,5 @@ WHERE f.mpa_name = 'PG';
 SELECT u.* 
 FROM users u
 JOIN friendships f ON u.user_id = f.friend_id
-WHERE f.user_id = 1 AND f.status = 'CONFIRMED';
+WHERE f.user_id = 1;
 ```
