@@ -28,12 +28,16 @@ class FilmControllerTest {
 
     private static Stream<String> invalidFilmsProvider() {
         return Stream.of(
-                "{}",
-                "{\"name\":\"\", \"releaseDate\":\"2000-01-01\", \"duration\":120}",
-                "{\"name\":\"Film\", \"releaseDate\":\"1895-12-27\", \"duration\":120}",
-                "{\"name\":\"Film\", \"releaseDate\":\"2000-01-01\", \"duration\":-1}",
+                "{}",  // Пустой объект
+                "{\"name\":\"\", \"releaseDate\":\"2000-01-01\", \"duration\":120, \"mpa\":{\"id\":1}}",
+                "{\"name\":\"Film\", \"releaseDate\":\"1895-12-27\", \"duration\":120, \"mpa\":{\"id\":1}}",
+                "{\"name\":\"Film\", \"releaseDate\":\"2000-01-01\", \"duration\":-1, \"mpa\":{\"id\":1}}",
                 "{\"name\":\"Film\", \"description\":\"" + "A".repeat(201) + "\", " +
-                        "\"releaseDate\":\"2000-01-01\", \"duration\":120}"
+                        "\"releaseDate\":\"2000-01-01\", \"duration\":120, \"mpa\":{\"id\":1}}",
+                "{\"name\":\"Film\", \"releaseDate\":\"2000-01-01\", \"duration\":120}",
+                "{\"name\":\"Film\", \"releaseDate\":\"2000-01-01\", \"duration\":120, \"mpa\":{}}",
+                "{\"name\":\"Film\", \"releaseDate\":\"2000-01-01\", \"duration\":120, \"mpa\":{\"id\":99}}",
+                "{\"name\":\"Film\", \"releaseDate\":\"2000-01-01\", \"duration\":120, \"mpa\":{\"id\":1}, \"genres\":[{\"id\":99}]}"
         );
     }
 
@@ -43,13 +47,24 @@ class FilmControllerTest {
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().is4xxClientError());
     }
 
     @Test
     void shouldAcceptValidFilm() throws Exception {
         String validJson = "{\"name\":\"Valid Film\", \"description\":\"Description\"," +
-                " \"releaseDate\":\"2000-01-01\", \"duration\":120}";
+                " \"releaseDate\":\"2000-01-01\", \"duration\":120, \"mpa\":{\"id\":1}}";
+        mockMvc.perform(post("/films")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(validJson))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldAcceptValidFilmWithGenres() throws Exception {
+        String validJson = "{\"name\":\"Valid Film\", \"description\":\"Description\"," +
+                " \"releaseDate\":\"2000-01-01\", \"duration\":120, \"mpa\":{\"id\":1}, " +
+                "\"genres\":[{\"id\":1}, {\"id\":2}]}";
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(validJson))

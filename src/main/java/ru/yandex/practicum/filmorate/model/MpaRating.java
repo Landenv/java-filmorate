@@ -1,16 +1,14 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@RequiredArgsConstructor
-public enum MpaRating {
-    G("G — Нет возрастных ограничений"),
-    PG("PG — Детям с родителями"),
-    PG_13("PG-13 — До 13 лет нежелательно"),
-    R("R — До 17 лет с взрослым"),
-    NC_17("NC-17 — До 18 лет запрещено");
-
-    private final String description;
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class MpaRating {
+    private int id;
+    private String name;
+    private String description;
 }

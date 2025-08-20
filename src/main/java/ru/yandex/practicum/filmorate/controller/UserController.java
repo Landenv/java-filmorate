@@ -51,7 +51,9 @@ public class UserController {
 
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable int id, @PathVariable int friendId) {
+        log.info("PUT /users/{}/friends/{} - adding friendship", id, friendId);
         userService.addFriend(id, friendId);
+        log.info("Friendship added successfully");
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
