@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.FilmRequest;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -17,15 +18,17 @@ import java.util.List;
 public class FilmController {
     private static final String DEFAULT_POPULAR_FILMS_COUNT = "10";
     private final FilmService filmService;
+    private final FilmMapper filmMapper;
 
     @Autowired
-    public FilmController(FilmService filmService) {
+    public FilmController(FilmService filmService, FilmMapper filmMapper) {
         this.filmService = filmService;
+        this.filmMapper = filmMapper;
     }
 
     @PostMapping
     public Film create(@Valid @RequestBody FilmRequest filmRequest) {
-        Film film = convertToFilm(filmRequest);
+        Film film = filmMapper.convertToFilm(filmRequest);
         log.info("Добавлен фильм: {}", film);
         return filmService.create(film);
     }
@@ -37,7 +40,7 @@ public class FilmController {
         }
 
         Film existingFilm = filmService.getById(filmRequest.getId());
-        updateFilmFromRequest(existingFilm, filmRequest);
+        filmMapper.updateFilmFromRequest(existingFilm, filmRequest);
 
         log.info("Обновлен фильм: {}", existingFilm);
         return filmService.update(existingFilm);
@@ -69,24 +72,4 @@ public class FilmController {
         return filmService.getPopularFilms(count);
     }
 
-    // Вспомогательные методы
-    private Film convertToFilm(FilmRequest filmRequest) {
-        return Film.builder()
-                .name(filmRequest.getName())
-                .description(filmRequest.getDescription())
-                .releaseDate(filmRequest.getReleaseDate())
-                .duration(filmRequest.getDuration())
-                .genres(filmRequest.getGenres())
-                .mpa(filmRequest.getMpa())
-                .build();
-    }
-
-    private void updateFilmFromRequest(Film film, FilmRequest filmRequest) {
-        film.setName(filmRequest.getName());
-        film.setDescription(filmRequest.getDescription());
-        film.setReleaseDate(filmRequest.getReleaseDate());
-        film.setDuration(filmRequest.getDuration());
-        film.setGenres(filmRequest.getGenres());
-        film.setMpa(filmRequest.getMpa());
-    }
 }

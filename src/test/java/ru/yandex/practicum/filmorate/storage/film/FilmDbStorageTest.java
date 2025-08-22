@@ -7,12 +7,15 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.yandex.practicum.filmorate.mapper.FilmMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import ru.yandex.practicum.filmorate.mapper.FilmRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MpaRating;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -21,17 +24,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({FilmDbStorage.class, FilmMapper.class})
+@Import({FilmDbStorage.class, FilmRowMapper.class})
 class FilmDbStorageTest {
     private final FilmDbStorage filmStorage;
     private final JdbcTemplate jdbcTemplate;
 
     private int createUser(String email, String login, String name, LocalDate birthday) {
-        var insert = new org.springframework.jdbc.core.simple.SimpleJdbcInsert(jdbcTemplate)
+        var insert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("users")
                 .usingGeneratedKeyColumns("user_id");
 
-        var parameters = new java.util.HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         parameters.put("user_email", email);
         parameters.put("user_login", login);
         parameters.put("user_name", name);

@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,17 +30,14 @@ class UserDbStorageTest {
                 .build();
 
         User createdUser = userStorage.create(user);
-        Optional<User> foundUser = userStorage.findUserById(createdUser.getId());
+        User foundUser = userStorage.getById(createdUser.getId());
 
-        assertThat(foundUser)
-                .isPresent()
-                .hasValueSatisfying(u -> {
-                    assertThat(u).hasFieldOrPropertyWithValue("id", createdUser.getId());
-                    assertThat(u).hasFieldOrPropertyWithValue("email", "test@example.com");
-                    assertThat(u).hasFieldOrPropertyWithValue("login", "testlogin");
-                    assertThat(u).hasFieldOrPropertyWithValue("name", "Test User");
-                    assertThat(u.getBirthday()).isEqualTo(LocalDate.of(1990, 1, 1));
-                });
+        assertThat(foundUser).isNotNull();
+        assertThat(foundUser.getId()).isEqualTo(createdUser.getId());
+        assertThat(foundUser.getEmail()).isEqualTo("test@example.com");
+        assertThat(foundUser.getLogin()).isEqualTo("testlogin");
+        assertThat(foundUser.getName()).isEqualTo("Test User");
+        assertThat(foundUser.getBirthday()).isEqualTo(LocalDate.of(1990, 1, 1));
     }
 
     @Test
@@ -64,16 +60,13 @@ class UserDbStorageTest {
                 .build();
 
         User updatedUser = userStorage.update(updatedUserData);
-        Optional<User> foundUser = userStorage.findUserById(createdUser.getId());
+        User foundUser = userStorage.getById(createdUser.getId());
 
-        assertThat(foundUser)
-                .isPresent()
-                .hasValueSatisfying(u -> {
-                    assertThat(u).hasFieldOrPropertyWithValue("name", "Updated Name");
-                    assertThat(u).hasFieldOrPropertyWithValue("email", "updated@example.com");
-                    assertThat(u).hasFieldOrPropertyWithValue("login", "updatedlogin");
-                    assertThat(u.getBirthday()).isEqualTo(LocalDate.of(1995, 5, 5));
-                });
+        assertThat(foundUser).isNotNull();
+        assertThat(foundUser.getName()).isEqualTo("Updated Name");
+        assertThat(foundUser.getEmail()).isEqualTo("updated@example.com");
+        assertThat(foundUser.getLogin()).isEqualTo("updatedlogin");
+        assertThat(foundUser.getBirthday()).isEqualTo(LocalDate.of(1995, 5, 5));
     }
 
     @Test

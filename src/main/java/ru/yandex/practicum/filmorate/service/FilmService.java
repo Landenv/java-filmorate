@@ -7,11 +7,9 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -55,12 +53,7 @@ public class FilmService {
             throw new ValidationException("Пользователь уже поставил лайк");
         }
 
-        if (filmStorage instanceof FilmDbStorage) {
-            ((FilmDbStorage) filmStorage).addLike(filmId, userId);
-        } else {
-            film.getLikes().add(userId);
-            filmStorage.update(film);
-        }
+        filmStorage.addLike(filmId, userId);
     }
 
     public void removeLike(int filmId, int userId) {
@@ -71,28 +64,11 @@ public class FilmService {
             throw new NotFoundException("Лайк не найден");
         }
 
-        if (filmStorage instanceof FilmDbStorage) {
-            ((FilmDbStorage) filmStorage).removeLike(filmId, userId);
-        } else {
-            film.getLikes().remove(userId);
-            filmStorage.update(film);
-        }
+        filmStorage.removeLike(filmId, userId);
     }
 
     public List<Film> getPopularFilms(int count) {
-        if (filmStorage instanceof FilmDbStorage) {
-            return ((FilmDbStorage) filmStorage).getPopularFilms(count);
-        } else {
-            return filmStorage.getAll().stream()
-                    .peek(film -> {
-                        if (film.getLikes() == null) {
-                            film.setLikes(new HashSet<>());
-                        }
-                    })
-                    .sorted(Comparator.comparingInt(film -> -film.getLikes().size()))
-                    .limit(count)
-                    .toList();
-        }
+        return filmStorage.getPopularFilms(count);
     }
 
     public void addGenre(int filmId, Genre genre) {
@@ -107,7 +83,6 @@ public class FilmService {
         filmStorage.update(film);
     }
 
-    // НОВЫЙ МЕТОД ДЛЯ УСТРАНЕНИЯ ДУБЛИРОВАНИЯ
     private void validateFilmData(Film film) {
         if (film.getMpa() == null) {
             throw new ValidationException("Рейтинг MPA обязателен");

@@ -1,13 +1,12 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import org.springframework.beans.factory.annotation.Qualifier;
+
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
 
 @Component
-@Qualifier("filmDbStorage")
 public interface FilmStorage {
     Film create(Film film);
 
@@ -18,4 +17,10 @@ public interface FilmStorage {
     List<Film> getAll();
 
     void delete(int id);
+
+    void addLike(int filmId, int userId);
+
+    void removeLike(int filmId, int userId);
+
+    List<Film> getPopularFilms(int count);
 }

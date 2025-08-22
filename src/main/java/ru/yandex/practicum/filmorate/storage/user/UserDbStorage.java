@@ -2,10 +2,10 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
@@ -13,11 +13,10 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
-@Component
-@Primary
+@Repository
+@Qualifier("userDbStorage")
 @RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -83,12 +82,6 @@ public class UserDbStorage implements UserStorage {
     public void delete(int id) {
         String sql = "DELETE FROM users WHERE user_id = ?";
         jdbcTemplate.update(sql, id);
-    }
-
-    public Optional<User> findUserById(int id) {
-        return jdbcTemplate.query(GET_USER_BY_ID_SQL, userMapper, id)
-                .stream()
-                .findFirst();
     }
 
     private void loadSubscriptions(User user) {
