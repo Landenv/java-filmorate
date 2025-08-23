@@ -18,19 +18,17 @@ import java.util.List;
 public class FilmController {
     private static final String DEFAULT_POPULAR_FILMS_COUNT = "10";
     private final FilmService filmService;
-    private final FilmMapper filmMapper;
 
     @Autowired
     public FilmController(FilmService filmService, FilmMapper filmMapper) {
         this.filmService = filmService;
-        this.filmMapper = filmMapper;
     }
 
     @PostMapping
     public Film create(@Valid @RequestBody FilmRequest filmRequest) {
-        Film film = filmMapper.convertToFilm(filmRequest);
+        Film film = filmService.create(filmRequest);
         log.info("Добавлен фильм: {}", film);
-        return filmService.create(film);
+        return film;
     }
 
     @PutMapping
@@ -39,11 +37,9 @@ public class FilmController {
             throw new ValidationException("ID фильма обязателен для обновления");
         }
 
-        Film existingFilm = filmService.getById(filmRequest.getId());
-        filmMapper.updateFilmFromRequest(existingFilm, filmRequest);
-
-        log.info("Обновлен фильм: {}", existingFilm);
-        return filmService.update(existingFilm);
+        Film film = filmService.update(filmRequest);
+        log.info("Обновлен фильм: {}", film);
+        return film;
     }
 
     @GetMapping("/{id}")

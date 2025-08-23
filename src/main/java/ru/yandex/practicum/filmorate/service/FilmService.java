@@ -3,8 +3,10 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.FilmRequest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -19,22 +21,32 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final FilmMapper filmMapper;
 
     @Autowired
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
-                       @Qualifier("userDbStorage") UserStorage userStorage) {
+                       @Qualifier("userDbStorage") UserStorage userStorage,
+                       FilmMapper filmMapper) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.filmMapper = filmMapper;
     }
 
-    public Film create(Film film) {
+    public Film create(FilmRequest filmRequest) {
+        Film film = filmMapper.convertToFilm(filmRequest);
         validateFilmData(film);
         return filmStorage.create(film);
     }
 
-    public Film update(Film film) {
-        validateFilmData(film);
-        return filmStorage.update(film);
+    public Film update(FilmRequest filmRequest) {
+        if (filmRequest.getId() == null) {
+            throw new ValidationException("ID фильма обязателен для обновления");
+        }
+
+        Film existingFilm = filmStorage.getById(filmRequest.getId());
+        filmMapper.updateFilmFromRequest(existingFilm, filmRequest);
+        validateFilmData(existingFilm);
+        return filmStorage.update(existingFilm);
     }
 
     public Film getById(int id) {
@@ -119,4 +131,6 @@ public class FilmService {
                 .map(Genre::getId)
                 .collect(Collectors.toSet());
     }
+
+
 }
