@@ -30,8 +30,8 @@ class UserControllerTest {
     @ValueSource(strings = {
             "{}",  // Пустой JSON
             "{\"email\":\"\", \"login\":\"\"}",  // Пустые email и login
-            "{\"email\":\"noatsymbol.com\", \"login\":\"validLogin\"}",  // Некорректный email
-            "{\"email\":\"valid@email.com\", \"login\":\"with space\"}"  // Некорректный login
+            "{\"email\":\"noatsymbol.com\", \"login\":\"validLogin\"}",
+            "{\"email\":\"valid@email.com\", \"login\":\"with space\"}"
     })
     void shouldReturn400WhenPostInvalidUser(String json) throws Exception {
         mockMvc.perform(post("/users")

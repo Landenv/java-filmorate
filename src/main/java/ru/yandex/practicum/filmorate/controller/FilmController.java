@@ -3,21 +3,13 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dto.FilmRequest;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
-
 
 @Slf4j
 @RestController
@@ -32,15 +24,21 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film create(@Valid @RequestBody Film film) {
+    public Film create(@Valid @RequestBody FilmRequest filmRequest) {
+        Film film = filmService.create(filmRequest);
         log.info("Добавлен фильм: {}", film);
-        return filmService.create(film);
+        return film;
     }
 
     @PutMapping
-    public Film update(@Valid @RequestBody Film film) {
+    public Film update(@Valid @RequestBody FilmRequest filmRequest) {
+        if (filmRequest.getId() == null) {
+            throw new ValidationException("ID фильма обязателен для обновления");
+        }
+
+        Film film = filmService.update(filmRequest);
         log.info("Обновлен фильм: {}", film);
-        return filmService.update(film);
+        return film;
     }
 
     @GetMapping("/{id}")
