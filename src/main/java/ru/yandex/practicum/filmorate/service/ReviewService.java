@@ -59,7 +59,7 @@ public class ReviewService {
     public List<ReviewResponse> getReviews(Integer filmId, int count) {
         List<Review> reviews;
         if (filmId != null) {
-            filmStorage.getById(filmId); // Проверяем существование фильма
+            filmStorage.getById(filmId);
             reviews = reviewStorage.getByFilmId(filmId, count);
         } else {
             reviews = reviewStorage.getAll(count);
