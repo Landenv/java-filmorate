@@ -22,6 +22,10 @@ public class UserService {
         return userStorage.update(user);
     }
 
+    public void delete(int id) {
+        userStorage.delete(id);
+    }
+
     public User getById(int id) {
         return userStorage.getById(id);
     }
