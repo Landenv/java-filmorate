@@ -1,9 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.validator.MinReleaseDate;
@@ -38,4 +35,7 @@ public class Film {
 
     @NotNull(message = "Рейтинг MPA обязателен")
     private MpaRating mpa;
+
+    @NotEmpty(message = "Должен быть хотя бы один режиссер")
+    private Set<Director> director=new HashSet<>();
 }
