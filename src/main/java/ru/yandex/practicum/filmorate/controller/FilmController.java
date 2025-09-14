@@ -67,4 +67,7 @@ public class FilmController {
         return filmService.getPopularFilms(count);
     }
 
+    @GetMapping("/films/director/{directorId}?sortBy=[year,likes]")
+
+
 }

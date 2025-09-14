@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.mapper.FilmRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
@@ -178,6 +177,16 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> films = jdbcTemplate.query(GET_POPULAR_FILMS_SQL, filmRowMapper, count);
         enrichFilmsWithLikesAndGenres(films);
         return films;
+    }
+
+    @Override
+    public List<Film> getFilmsDerectorByDate(int id) {
+        return List.of();
+    }
+
+    @Override
+    public List<Film> getFilmsDerectorByLike(int id) {
+        return List.of();
     }
 
     // Новые методы для batch-загрузки
