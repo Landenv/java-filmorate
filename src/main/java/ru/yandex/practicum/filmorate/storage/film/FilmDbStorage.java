@@ -11,12 +11,7 @@ import ru.yandex.practicum.filmorate.mapper.FilmRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -252,12 +247,10 @@ public class FilmDbStorage implements FilmStorage {
                 ps.setInt(i + 1, filmIds.get(i));
             }
         }, rs -> {
-            while (rs.next()) {
-                int filmId = rs.getInt("film_id");
-                genresByFilm
-                        .computeIfAbsent(filmId, k -> new LinkedHashSet<>())
-                        .add(new Genre(rs.getInt("genre_id"), rs.getString("genre_name")));
-            }
+            int filmId = rs.getInt("film_id");
+            genresByFilm
+                    .computeIfAbsent(filmId, k -> new LinkedHashSet<>())
+                    .add(new Genre(rs.getInt("genre_id"), rs.getString("genre_name")));
         });
 
         return genresByFilm;
