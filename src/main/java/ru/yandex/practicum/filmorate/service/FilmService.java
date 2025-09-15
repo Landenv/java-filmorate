@@ -22,14 +22,17 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final FilmMapper filmMapper;
+    private final FriendshipService friendshipService;
 
     @Autowired
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
                        @Qualifier("userDbStorage") UserStorage userStorage,
-                       FilmMapper filmMapper) {
+                       FilmMapper filmMapper,
+                       FriendshipService friendshipService) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.filmMapper = filmMapper;
+        this.friendshipService = friendshipService;
     }
 
     public Film create(FilmRequest filmRequest) {
@@ -85,6 +88,10 @@ public class FilmService {
 
     public List<Film> getPopularFilms(int count) {
         return filmStorage.getPopularFilms(count);
+    }
+
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        return filmStorage.getCommonFilms(userId, friendId);
     }
 
     public void addGenre(int filmId, Genre genre) {

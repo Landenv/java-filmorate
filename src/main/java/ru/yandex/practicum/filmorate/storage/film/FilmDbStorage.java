@@ -48,6 +48,13 @@ public class FilmDbStorage implements FilmStorage {
             ORDER BY likes_count DESC
             LIMIT ?""";
 
+    private static final String GET_COMMON_FILMS_SQL = """
+            SELECT f.*, m.mpa_name, m.description as mpa_description
+            FROM films f
+            JOIN mpa_ratings m ON f.mpa_id = m.mpa_id
+            JOIN likes l1 ON f.film_id = l1.film_id AND l1.user_id = ?
+            JOIN likes l2 ON f.film_id = l2.film_id AND l2.user_id = ?""";
+
     @Override
     public Film create(Film film) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
@@ -180,6 +187,12 @@ public class FilmDbStorage implements FilmStorage {
 
     public List<Film> getPopularFilms(int count) {
         List<Film> films = jdbcTemplate.query(GET_POPULAR_FILMS_SQL, filmRowMapper, count);
+        enrichFilmsWithLikesAndGenres(films);
+        return films;
+    }
+
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        List<Film> films = jdbcTemplate.query(GET_COMMON_FILMS_SQL, filmRowMapper, userId, friendId);
         enrichFilmsWithLikesAndGenres(films);
         return films;
     }
