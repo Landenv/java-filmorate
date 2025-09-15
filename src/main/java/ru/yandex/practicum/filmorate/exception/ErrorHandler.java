@@ -49,4 +49,11 @@ public class ErrorHandler {
         return new ErrorResponse(SERVER_ERROR, "Внутренняя ошибка сервера");
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleReviewValidationException(ReviewValidationException exception) {
+        log.warn("Review validation error: {}", exception.getMessage());
+        return ErrorResponse.withMessage(VALIDATION_ERROR, exception.getMessage());
+    }
+
 }
