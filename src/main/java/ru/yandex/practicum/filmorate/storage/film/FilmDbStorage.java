@@ -18,6 +18,8 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 
+import ru.yandex.practicum.filmorate.model.Director;
+
 @Slf4j
 @Repository
 @Qualifier("filmDbStorage")
@@ -69,6 +71,11 @@ public class FilmDbStorage implements FilmStorage {
             	                  FROM likes
             	                  WHERE user_id = ?)""";
 
+    private static final String DELETE_DIRECTORS =
+            "DELETE FROM film_directors WHERE film_id = ?";
+    private static final String INSERT_DIRECTOR =
+            "INSERT INTO film_directors(film_id, director_id) VALUES (?, ?)";
+
     @Override
     public Film create(Film film) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
@@ -86,6 +93,7 @@ public class FilmDbStorage implements FilmStorage {
         film.setId(generatedId.intValue());
 
         saveGenres(film);
+        saveDirectors(film);
         return getById(film.getId());
     }
 
@@ -144,6 +152,7 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         updateGenres(film);
+        updateDirectors(film);
         Film updatedFilm = getById(film.getId());
         log.info("Film updated successfully: {}", updatedFilm);
 
@@ -159,6 +168,7 @@ public class FilmDbStorage implements FilmStorage {
 
         loadLikes(film);
         loadGenres(film);
+        loadDirectors(film);
         return film;
     }
 
@@ -335,10 +345,47 @@ public class FilmDbStorage implements FilmStorage {
 
         Map<Integer, Set<Integer>> likesByFilm = loadLikesForFilms(filmIds);
         Map<Integer, Set<Genre>> genresByFilm = loadGenresForFilms(filmIds);
+//        Map<Integer, Set<Director>> directorsByFilm = loadDirectorsForFilms(filmIds); // новое
 
         films.forEach(film -> {
             film.setLikes(likesByFilm.getOrDefault(film.getId(), new HashSet<>()));
             film.setGenres(genresByFilm.getOrDefault(film.getId(), new LinkedHashSet<>()));
+//            film.setDirectors(directorsByFilm.getOrDefault(film.getId(), new LinkedHashSet<>())); // новое
         });
+    }
+
+    private void updateDirectors(Film film) {
+        jdbcTemplate.update(DELETE_DIRECTORS, film.getId());
+        if (film.getDirectors() == null || film.getDirectors().isEmpty()) return;
+
+        var batch = film.getDirectors().stream()
+                .map(d -> new Object[]{film.getId(), d.getId()})
+                .toList();
+        jdbcTemplate.batchUpdate(INSERT_DIRECTOR, batch);
+
+    }
+
+    private void saveDirectors(Film film) {
+        if (film.getDirectors() == null || film.getDirectors().isEmpty()) return;
+        var batch = film.getDirectors().stream()
+                .map(d -> new Object[]{film.getId(), d.getId()})
+                .toList();
+        jdbcTemplate.batchUpdate(INSERT_DIRECTOR, batch);
+    }
+
+    private void loadDirectors(Film film) {
+        String sql = """
+                SELECT d.director_id, d.director_name
+                FROM film_directors fd
+                JOIN directors d ON d.director_id = fd.director_id
+                WHERE fd.film_id = ?
+                ORDER BY d.director_id
+                """;
+        List<Director> list = jdbcTemplate.query(sql, (rs, rn) ->
+                Director.builder()
+                        .id(rs.getInt("director_id"))
+                        .name(rs.getString("director_name"))
+                        .build(), film.getId());
+        film.setDirectors(new LinkedHashSet<>(list));
     }
 }

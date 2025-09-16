@@ -34,5 +34,5 @@ public class FilmRequest {
     private MpaRating mpa;
 
     @NotEmpty(message = "Должен быть хотя бы один режиссер")
-    private Set<Director> director=new HashSet<>();
+    private Set<Director> directors=new HashSet<>();
 }
