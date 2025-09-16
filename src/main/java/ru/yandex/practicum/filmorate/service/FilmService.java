@@ -26,7 +26,8 @@ public class FilmService {
     @Autowired
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
                        @Qualifier("userDbStorage") UserStorage userStorage,
-                       FilmMapper filmMapper) {
+                       FilmMapper filmMapper,
+                       FriendshipService friendshipService) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.filmMapper = filmMapper;
@@ -85,6 +86,10 @@ public class FilmService {
 
     public List<Film> getPopularFilms(int count) {
         return filmStorage.getPopularFilms(count);
+    }
+
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        return filmStorage.getCommonFilms(userId, friendId);
     }
 
     public void addGenre(int filmId, Genre genre) {

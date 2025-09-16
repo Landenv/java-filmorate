@@ -11,12 +11,12 @@ import ru.yandex.practicum.filmorate.mapper.FilmRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -47,6 +47,13 @@ public class FilmDbStorage implements FilmStorage {
             GROUP BY f.film_id
             ORDER BY likes_count DESC
             LIMIT ?""";
+
+    private static final String GET_COMMON_FILMS_SQL = """
+            SELECT f.*, m.mpa_name, m.description as mpa_description
+            FROM films f
+            JOIN mpa_ratings m ON f.mpa_id = m.mpa_id
+            JOIN likes l1 ON f.film_id = l1.film_id AND l1.user_id = ?
+            JOIN likes l2 ON f.film_id = l2.film_id AND l2.user_id = ?""";
 
     @Override
     public Film create(Film film) {
@@ -184,6 +191,12 @@ public class FilmDbStorage implements FilmStorage {
         return films;
     }
 
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        List<Film> films = jdbcTemplate.query(GET_COMMON_FILMS_SQL, filmRowMapper, userId, friendId);
+        enrichFilmsWithLikesAndGenres(films);
+        return films;
+    }
+
     // Новые методы для batch-загрузки
     private Map<Integer, Set<Integer>> loadLikesForFilms(List<Integer> filmIds) {
         if (filmIds.isEmpty()) {
@@ -239,12 +252,10 @@ public class FilmDbStorage implements FilmStorage {
                 ps.setInt(i + 1, filmIds.get(i));
             }
         }, rs -> {
-            while (rs.next()) {
-                int filmId = rs.getInt("film_id");
-                genresByFilm
-                        .computeIfAbsent(filmId, k -> new LinkedHashSet<>())
-                        .add(new Genre(rs.getInt("genre_id"), rs.getString("genre_name")));
-            }
+            int filmId = rs.getInt("film_id");
+            genresByFilm
+                    .computeIfAbsent(filmId, k -> new LinkedHashSet<>())
+                    .add(new Genre(rs.getInt("genre_id"), rs.getString("genre_name")));
         });
 
         return genresByFilm;
