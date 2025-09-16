@@ -36,12 +36,11 @@ public class ReviewService {
         review.setUseful(0);
         Review created = reviewStorage.create(review);
 
-        // Feed событие REVIEW ADD
         feedService.addEvent(FeedEvent.builder()
                 .timestamp(System.currentTimeMillis())
                 .userId(created.getUserId())
-                .eventType(FeedEvent.EventType.REVIEW)
-                .operation(FeedEvent.Operation.ADD)
+                .eventType(FeedEvent.EventType.REVIEW) // REVIEW
+                .operation(FeedEvent.Operation.ADD)    // ADD
                 .entityId(created.getReviewId())
                 .build());
 
@@ -60,12 +59,11 @@ public class ReviewService {
         reviewMapper.updateReviewFromRequest(existing, reviewRequest);
         Review updated = reviewStorage.update(existing);
 
-        // Feed событие REVIEW UPDATE
         feedService.addEvent(FeedEvent.builder()
                 .timestamp(System.currentTimeMillis())
                 .userId(updated.getUserId())
-                .eventType(FeedEvent.EventType.REVIEW)
-                .operation(FeedEvent.Operation.UPDATE)
+                .eventType(FeedEvent.EventType.REVIEW) // REVIEW
+                .operation(FeedEvent.Operation.UPDATE) // UPDATE
                 .entityId(updated.getReviewId())
                 .build());
 
@@ -108,7 +106,7 @@ public class ReviewService {
         feedService.addEvent(FeedEvent.builder()
                 .timestamp(System.currentTimeMillis())
                 .userId(userId)
-                .eventType(FeedEvent.EventType.LIKE)
+                .eventType(FeedEvent.EventType.LIKE) // LIKE
                 .operation(FeedEvent.Operation.ADD)
                 .entityId(reviewId)
                 .build());
@@ -129,7 +127,7 @@ public class ReviewService {
         feedService.addEvent(FeedEvent.builder()
                 .timestamp(System.currentTimeMillis())
                 .userId(userId)
-                .eventType(FeedEvent.EventType.LIKE)
+                .eventType(FeedEvent.EventType.LIKE)   // LIKE
                 .operation(FeedEvent.Operation.REMOVE)
                 .entityId(reviewId)
                 .build());
