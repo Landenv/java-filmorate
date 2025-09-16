@@ -10,15 +10,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FeedEvent {
-    private Integer eventId;
-    private Long timestamp;       // время события в миллисекундах
-    private Integer userId;
-    private EventType eventType;  // FRIEND, LIKE, REVIEW
-    private Operation operation;  // ADD, REMOVE, UPDATE
-    private Integer entityId;     // ID сущности (фильм, пользователь или отзыв)
+    private Integer eventId;        // уникальный ID события, может быть null при создании
+    private Long timestamp;         // время события в миллисекундах, не null
+    private Integer userId;         // ID пользователя, инициировавшего событие
+    private EventType eventType;    // тип события: FRIEND, LIKE, REVIEW
+    private Operation operation;    // операция: ADD, REMOVE, UPDATE
+    private Integer entityId;       // ID сущности (пользователь, фильм или отзыв)
 
     public enum EventType {
-        LIKE, REVIEW, FRIEND
+        FRIEND, REVIEW, LIKE
     }
 
     public enum Operation {
