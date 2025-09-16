@@ -24,7 +24,7 @@ public interface FilmStorage {
 
     List<Film> getPopularFilms(int count);
 
-    List<Film>getFilmsDerectorByDate(int id);
-
-    List<Film>getFilmsDerectorByLike(int id);
+//    List<Film>getFilmsDerectorByDate(int id);
+//
+//    List<Film>getFilmsDerectorByLike(int id);
 }
