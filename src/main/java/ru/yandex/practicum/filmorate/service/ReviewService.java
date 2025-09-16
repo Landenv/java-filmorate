@@ -73,6 +73,20 @@ public class ReviewService {
 
     public void delete(int id) {
         log.info("delete review {}", id);
+
+        // Получаем отзыв перед удалением
+        Review review = reviewStorage.getById(id);
+
+        // Создаем событие удаления
+        feedService.addEvent(FeedEvent.builder()
+                .timestamp(System.currentTimeMillis())
+                .userId(review.getUserId())
+                .eventType(FeedEvent.EventType.REVIEW)
+                .operation(FeedEvent.Operation.REMOVE)
+                .entityId(id)
+                .build());
+
+        // Удаляем отзыв
         reviewStorage.delete(id);
     }
 
