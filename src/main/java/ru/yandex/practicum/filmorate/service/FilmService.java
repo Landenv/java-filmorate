@@ -22,7 +22,6 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final FilmMapper filmMapper;
-    private final FriendshipService friendshipService;
 
     @Autowired
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
@@ -32,7 +31,6 @@ public class FilmService {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.filmMapper = filmMapper;
-        this.friendshipService = friendshipService;
     }
 
     public Film create(FilmRequest filmRequest) {
