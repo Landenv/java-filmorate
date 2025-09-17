@@ -90,6 +90,39 @@ public class FilmDbStorage implements FilmStorage {
         return getById(film.getId());
     }
 
+    public List<Film> getPopularFilms(int count, Integer genreId, Integer year) {
+        StringBuilder sql = new StringBuilder("""
+                SELECT f.*, m.mpa_name, m.description as mpa_description,
+                       COUNT(l.user_id) as likes_count
+                FROM films f
+                JOIN mpa_ratings m ON f.mpa_id = m.mpa_id
+                LEFT JOIN likes l ON f.film_id = l.film_id
+                """);
+
+        if (genreId != null) {
+            sql.append(" JOIN film_genres fg ON f.film_id = fg.film_id ");
+        }
+
+        sql.append(" WHERE 1=1 ");
+
+        if (genreId != null) {
+            sql.append(" AND fg.genre_id = ").append(genreId);
+        }
+        if (year != null) {
+            sql.append(" AND EXTRACT(YEAR FROM f.film_release_date) = ").append(year);
+        }
+
+        sql.append("""
+                GROUP BY f.film_id
+                ORDER BY likes_count DESC
+                LIMIT ?
+                """);
+
+        List<Film> films = jdbcTemplate.query(sql.toString(), filmRowMapper, count);
+        enrichFilmsWithLikesAndGenres(films);
+        return films;
+    }
+
     @Override
     public Film update(Film film) {
         log.info("Updating film with ID: {}", film.getId());
