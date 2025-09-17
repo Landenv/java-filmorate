@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.service.DirectorService;
@@ -16,7 +16,8 @@ public class DirectorController {
     private final DirectorService directorService;
 
     @Autowired
-    public DirectorController(final DirectorService directorService) {
+    public DirectorController(final DirectorService directorService, DirectorService directorService1) {
+        this.directorService = directorService1;
     }
 
     @GetMapping
@@ -25,15 +26,15 @@ public class DirectorController {
     }
 
     @GetMapping("/{id}")
-    public List<Director> getDirectorsById(@PathVariable("id") int id) {
+    public Director getDirectorsById(@PathVariable("id") int id) {
         return directorService.getDirectorsById(id);
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public void createDirector(@RequestBody final Director director) {
-        directorService.createDirector(director);
+    public Director createDirector(@RequestBody @Valid Director director) {
+        return directorService.createDirector(director);
     }
-
 
     @PutMapping
     public Director updateDirector(@RequestBody final Director newDirector) {

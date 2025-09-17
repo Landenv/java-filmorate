@@ -4,10 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Director;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @Qualifier("directorDbStorage")
@@ -15,9 +17,6 @@ import java.util.List;
 public class DirectorDbStorage implements DirectorStorage {
     private final JdbcTemplate jdbc;
     private final DirectorRowMapper directorRowMapper;
-
-    private static final String CREATE = """
-            INSERT INTO directors(director_name) VALUES (?)""";
 
     private static final String GET = """
             SELECT director_id as id, director_name as name
@@ -41,8 +40,13 @@ public class DirectorDbStorage implements DirectorStorage {
 
 
     @Override
-    public void createDirector(Director director) {
-
+    public Director createDirector(Director director) {
+        SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbc)
+                .withTableName("directors")
+                .usingGeneratedKeyColumns("director_id");
+        Number key = insert.executeAndReturnKey(Map.of("director_name", director.getName()));
+        director.setId(key.intValue());
+        return director;
     }
 
     @Override
@@ -61,8 +65,13 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public Director updateDirector(Director newdirector) {
-        int updatedRows = jdbc.update(UPDATE, newdirector.getName(), newdirector.getId());
-        return updatedRows;
+//        int updatedRows = jdbc.update(UPDATE, newdirector.getName(), newdirector.getId());
+//        return updatedRows>0? getDirectorsById(newdirector.getId()) : null;
+        int n = jdbc.update(UPDATE, newdirector.getName(), newdirector.getId()); // n = число изменённых строк
+        if (n == 0) {
+            throw new EmptyResultDataAccessException(1);
+        }
+        return getDirectorsById(newdirector.getId());
     }
 
     @Override

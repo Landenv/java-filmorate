@@ -7,8 +7,10 @@ import ru.yandex.practicum.filmorate.dto.FilmRequest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -22,14 +24,16 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final FilmMapper filmMapper;
+    private final DirectorDbStorage directorDbStorage;
 
     @Autowired
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
                        @Qualifier("userDbStorage") UserStorage userStorage,
-                       FilmMapper filmMapper) {
+                       FilmMapper filmMapper, DirectorDbStorage directorDbStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.filmMapper = filmMapper;
+        this.directorDbStorage = directorDbStorage;
     }
 
     public Film create(FilmRequest filmRequest) {
@@ -132,5 +136,25 @@ public class FilmService {
                 .collect(Collectors.toSet());
     }
 
+    public List<Film> getByDirectorOrderByYear(int directorId) {
+        validateDirector(directorId);
+        return filmStorage.getFilmsDerectorByDate(directorId);
+    }
+    public List<Film> getByDirectorOrderByLikes(int directorId) {
+        validateDirector(directorId);
+        return filmStorage.getFilmsDerectorByLike(directorId);
+    }
 
+
+    private void validateDirector(int directorId) {
+        if (directorId <= 0) {
+            throw new IllegalArgumentException("directorId должен быть > 0");
+        }
+        Director d = directorDbStorage.getDirectorsById(directorId);
+        if (d == null) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.NOT_FOUND,
+                    "Режиссёр " + directorId + " не найден");
+        }
+    }
 }
