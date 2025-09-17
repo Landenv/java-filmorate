@@ -4,6 +4,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.validator.MinReleaseDate;
@@ -40,5 +45,6 @@ public class Film {
     private MpaRating mpa;
 
     @Builder.Default
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     private Set<Director> directors = new HashSet<>();
 }

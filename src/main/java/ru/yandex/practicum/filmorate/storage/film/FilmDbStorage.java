@@ -70,31 +70,25 @@ public class FilmDbStorage implements FilmStorage {
     private static final String INSERT_DIRECTOR =
             "INSERT INTO film_directors(film_id, director_id) VALUES (?, ?)";
 
-    // по дате выпуска
     private static final String GET_BY_DIRECTOR_ORDER_BY_DATE = """
-               SELECT f.*, m.mpa_name, m.description AS mpa_description
-               FROM films f
-               JOIN film_directors fd ON fd.film_id = f.film_id
-               JOIN mpa_ratings m ON m.mpa_id = f.mpa_id
-               WHERE fd.director_id = ?
-               ORDER BY f.film_release_date ASC
+            SELECT f.*, m.mpa_name, m.description AS mpa_description
+            FROM films f
+            JOIN mpa_ratings m ON m.mpa_id = f.mpa_id
+            JOIN film_directors fd ON fd.film_id = f.film_id
+            WHERE fd.director_id = ?
+            ORDER BY f.film_release_date ASC, f.film_id
             """;
 
-    // по количеству лайков
     private static final String GET_BY_DIRECTOR_ORDER_BY_LIKES = """
-                    SELECT f.*, m.mpa_name, m.description AS mpa_description, COALESCE(l.cnt, 0) AS likes_count
-                FROM films f
-                JOIN film_directors fd ON fd.film_id = f.film_id
-                JOIN mpa_ratings m ON m.mpa_id = f.mpa_id
-                LEFT JOIN (
-                    SELECT film_id, COUNT(user_id) AS cnt
-                    FROM likes
-                    GROUP BY film_id
-                ) l ON l.film_id = f.film_id
-                WHERE fd.director_id = ?
-                ORDER BY likes_count DESC, f.film_name ASC
+            SELECT f.*, m.mpa_name, m.description AS mpa_description, COUNT(l.user_id) AS likes_count
+            FROM films f
+            JOIN mpa_ratings m ON m.mpa_id = f.mpa_id
+            JOIN film_directors fd ON fd.film_id = f.film_id
+            LEFT JOIN likes l ON l.film_id = f.film_id
+            WHERE fd.director_id = ?
+            GROUP BY f.film_id, m.mpa_name, m.description
+            ORDER BY likes_count DESC, f.film_release_date ASC, f.film_id
             """;
-
 
     @Override
     public Film create(Film film) {

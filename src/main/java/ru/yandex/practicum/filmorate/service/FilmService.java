@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.FeedEvent;
 import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
@@ -158,7 +159,6 @@ public class FilmService {
         validateDirector(directorId);
         return filmDbStorage.getFilmsDerectorByLike(directorId);
     }
-
 
     private void validateDirector(int directorId) {
         if (directorId <= 0) {

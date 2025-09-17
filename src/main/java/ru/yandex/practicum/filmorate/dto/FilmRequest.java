@@ -36,5 +36,5 @@ public class FilmRequest {
     @NotNull(message = "Рейтинг MPA обязателен")
     private MpaRating mpa;
 
-    private Set<Director> directors = new HashSet<>();
+    private Set<Director> directors=new HashSet<>();
 }
