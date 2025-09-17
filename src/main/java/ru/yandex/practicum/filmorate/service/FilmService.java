@@ -92,6 +92,10 @@ public class FilmService {
         return filmStorage.getCommonFilms(userId, friendId);
     }
 
+    public List<Film> getRecommendedFilms(int id) {
+        return filmStorage.getRecommendedFilms(id);
+    }
+
     public void addGenre(int filmId, Genre genre) {
         Film film = filmStorage.getById(filmId);
         film.getGenres().add(genre);
