@@ -8,9 +8,13 @@ import java.util.List;
 @Component
 public interface DirectorStorage {
 
-    void createDirector(Director director);
+    Director createDirector(Director director);
+
     List<Director> getDirectors();
+
     Director getDirectorsById(int id);
+
     Director updateDirector(Director newdirector);
+
     void deleteDirector(int id);
 }

@@ -1,6 +1,9 @@
 package ru.yandex.practicum.filmorate.dto;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -33,6 +36,5 @@ public class FilmRequest {
     @NotNull(message = "Рейтинг MPA обязателен")
     private MpaRating mpa;
 
-    @NotEmpty(message = "Должен быть хотя бы один режиссер")
-    private Set<Director> directors=new HashSet<>();
+    private Set<Director> directors = new HashSet<>();
 }
