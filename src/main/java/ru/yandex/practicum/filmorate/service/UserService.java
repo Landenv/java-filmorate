@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserStorage userStorage;
     private final FriendshipService friendshipService;
-    private final FeedService feedService;
 
     public User create(User user) {
         return userStorage.create(user);
