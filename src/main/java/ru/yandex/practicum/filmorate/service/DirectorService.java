@@ -20,8 +20,7 @@ public class DirectorService {
         validateName(name);
         ensureNameUnique(name, null);
         director.setName(name);
-        directorDbStorage.createDirector(director);
-        return director;
+        return directorDbStorage.createDirector(director);
     }
 
     public List<Director> getDirectors() {
