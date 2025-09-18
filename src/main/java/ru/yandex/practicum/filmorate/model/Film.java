@@ -45,6 +45,5 @@ public class Film {
     private MpaRating mpa;
 
     @Builder.Default
-    @JsonInclude(JsonInclude.Include.ALWAYS)
     private Set<Director> directors = new HashSet<>();
 }
