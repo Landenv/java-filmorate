@@ -16,8 +16,8 @@ public class DirectorController {
     private final DirectorService directorService;
 
     @Autowired
-    public DirectorController(final DirectorService directorService, DirectorService directorService1) {
-        this.directorService = directorService1;
+    public DirectorController(final DirectorService directorService) {
+        this.directorService = directorService;
     }
 
     @GetMapping
