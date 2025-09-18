@@ -17,6 +17,11 @@ public class DirectorController {
 
     private final DirectorService directorService;
 
+    @Autowired
+    public DirectorController(final DirectorService directorService) {
+        this.directorService = directorService;
+    }
+
     @GetMapping
     public List<Director> getDirectors() {
         return directorService.getDirectors();
