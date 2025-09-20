@@ -24,7 +24,6 @@ public class FeedDbStorage implements FeedStorage {
     private static final String GET_FEED_BY_USER_SQL = """
             SELECT * FROM feed_events
             WHERE user_id = ?
-            ORDER BY timestamp ASC
             """;
 
     @Override

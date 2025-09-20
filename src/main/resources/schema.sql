@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS film_directors (
     director_id INTEGER NOT NULL,
     PRIMARY KEY (film_id, director_id),
     FOREIGN KEY (film_id) REFERENCES films (film_id) ON DELETE CASCADE,
-    FOREIGN KEY (director_id) REFERENCES directors (director_id) ON DELETE RESTRICT
+    FOREIGN KEY (director_id) REFERENCES directors (director_id) ON DELETE CASCADE
 );
 
 -- Создание таблицы жанров
@@ -115,3 +115,4 @@ CREATE INDEX IF NOT EXISTS idx_reviews_user_id ON reviews(user_id);
 CREATE INDEX IF NOT EXISTS idx_reviews_useful ON reviews(useful DESC);
 CREATE INDEX IF NOT EXISTS idx_review_likes_review_id ON review_likes(review_id);
 CREATE INDEX IF NOT EXISTS idx_review_likes_user_id ON review_likes(user_id);
+

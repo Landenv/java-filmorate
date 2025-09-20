@@ -29,6 +29,7 @@ public class FilmService {
     private final FilmMapper filmMapper;
     private final DirectorDbStorage directorDbStorage;
     private final FeedService feedService;
+    private final Object likeLock = new Object();
 
     public Film create(FilmRequest filmRequest) {
         log.info("Creating film");
@@ -65,9 +66,10 @@ public class FilmService {
         Film film = filmDbStorage.getById(filmId);
         userDbStorage.getById(userId);
 
-        if (film.getLikes().contains(userId)) throw new ValidationException("Пользователь уже поставил лайк");
-
-        filmDbStorage.addLike(filmId, userId);
+        if (film.getLikes().contains(userId)) {
+            log.info("User {} already liked film {}. Skipping...", userId, filmId);
+            return;
+        }
 
         feedService.addEvent(FeedEvent.builder()
                 .timestamp(System.currentTimeMillis())
@@ -76,6 +78,8 @@ public class FilmService {
                 .operation(FeedEvent.Operation.ADD)
                 .entityId(filmId)
                 .build());
+
+        filmDbStorage.addLike(filmId, userId);
     }
 
     public void removeLike(int filmId, int userId) {
@@ -83,9 +87,10 @@ public class FilmService {
         Film film = filmDbStorage.getById(filmId);
         userDbStorage.getById(userId);
 
-        if (!film.getLikes().contains(userId)) throw new NotFoundException("Лайк не найден");
-
-        filmDbStorage.removeLike(filmId, userId);
+        if (!film.getLikes().contains(userId)) {
+            log.info("User {} didn't like film {}. Skipping...", userId, filmId);
+            return;
+        }
 
         feedService.addEvent(FeedEvent.builder()
                 .timestamp(System.currentTimeMillis())
@@ -94,6 +99,8 @@ public class FilmService {
                 .operation(FeedEvent.Operation.REMOVE)
                 .entityId(filmId)
                 .build());
+
+        filmDbStorage.removeLike(filmId, userId);
     }
 
     public List<Film> getPopularFilms(int count, Integer genreId, Integer year) {
@@ -160,13 +167,11 @@ public class FilmService {
 
     private void validateDirector(int directorId) {
         if (directorId <= 0) {
-            throw new IllegalArgumentException("directorId должен быть > 0");
+            throw new ValidationException("directorId должен быть > 0");
         }
         Director d = directorDbStorage.getDirectorsById(directorId);
         if (d == null) {
-            throw new org.springframework.web.server.ResponseStatusException(
-                    org.springframework.http.HttpStatus.NOT_FOUND,
-                    "Режиссёр " + directorId + " не найден");
+            throw new NotFoundException("Режиссёр " + directorId + " не найден");
         }
     }
 

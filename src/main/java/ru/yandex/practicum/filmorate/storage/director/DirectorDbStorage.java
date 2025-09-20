@@ -35,7 +35,7 @@ public class DirectorDbStorage implements DirectorStorage {
             """;
 
     private static final String DELETE = """
-                        DELETE FROM film_directors WHERE director_id = ?
+              DELETE FROM directors WHERE director_id = ?
             """;
 
 

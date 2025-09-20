@@ -39,8 +39,8 @@ public class ReviewService {
         feedService.addEvent(FeedEvent.builder()
                 .timestamp(System.currentTimeMillis())
                 .userId(created.getUserId())
-                .eventType(FeedEvent.EventType.REVIEW) // REVIEW
-                .operation(FeedEvent.Operation.ADD)    // ADD
+                .eventType(FeedEvent.EventType.REVIEW)
+                .operation(FeedEvent.Operation.ADD)
                 .entityId(created.getReviewId())
                 .build());
 
@@ -120,7 +120,7 @@ public class ReviewService {
         feedService.addEvent(FeedEvent.builder()
                 .timestamp(System.currentTimeMillis())
                 .userId(userId)
-                .eventType(FeedEvent.EventType.LIKE) // LIKE
+                .eventType(FeedEvent.EventType.REVIEW)
                 .operation(FeedEvent.Operation.ADD)
                 .entityId(reviewId)
                 .build());
@@ -138,13 +138,13 @@ public class ReviewService {
         review.setUseful(review.getUseful() - 1);
         reviewStorage.update(review);
 
-        feedService.addEvent(FeedEvent.builder()
+        /*feedService.addEvent(FeedEvent.builder()
                 .timestamp(System.currentTimeMillis())
                 .userId(userId)
-                .eventType(FeedEvent.EventType.LIKE)   // LIKE
-                .operation(FeedEvent.Operation.REMOVE)
+                .eventType(FeedEvent.EventType.REVIEW)
+                .operation(FeedEvent.Operation.ADD)
                 .entityId(reviewId)
-                .build());
+                .build());*/
     }
 
     public void removeLike(int reviewId, int userId) {
@@ -158,13 +158,13 @@ public class ReviewService {
         review.setUseful(review.getUseful() - 1);
         reviewStorage.update(review);
 
-        feedService.addEvent(FeedEvent.builder()
+        /*feedService.addEvent(FeedEvent.builder()
                 .timestamp(System.currentTimeMillis())
                 .userId(userId)
-                .eventType(FeedEvent.EventType.LIKE)
+                .eventType(FeedEvent.EventType.REVIEW)
                 .operation(FeedEvent.Operation.REMOVE)
                 .entityId(reviewId)
-                .build());
+                .build());*/
     }
 
     public void removeDislike(int reviewId, int userId) {
@@ -178,12 +178,12 @@ public class ReviewService {
         review.setUseful(review.getUseful() + 1);
         reviewStorage.update(review);
 
-        feedService.addEvent(FeedEvent.builder()
+        /*feedService.addEvent(FeedEvent.builder()
                 .timestamp(System.currentTimeMillis())
                 .userId(userId)
-                .eventType(FeedEvent.EventType.LIKE)
-                .operation(FeedEvent.Operation.ADD)
+                .eventType(FeedEvent.EventType.REVIEW)
+                .operation(FeedEvent.Operation.REMOVE)
                 .entityId(reviewId)
-                .build());
+                .build());*/
     }
 }

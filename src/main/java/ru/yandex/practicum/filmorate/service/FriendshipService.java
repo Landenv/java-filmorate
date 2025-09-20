@@ -27,8 +27,8 @@ public class FriendshipService {
         feedService.addEvent(FeedEvent.builder()
                 .timestamp(System.currentTimeMillis())
                 .userId(userId)
-                .eventType(FeedEvent.EventType.FRIEND) // FRIEND
-                .operation(FeedEvent.Operation.ADD)    // ADD
+                .eventType(FeedEvent.EventType.FRIEND)
+                .operation(FeedEvent.Operation.ADD)
                 .entityId(friendId)
                 .build());
 
@@ -47,8 +47,8 @@ public class FriendshipService {
         feedService.addEvent(FeedEvent.builder()
                 .timestamp(System.currentTimeMillis())
                 .userId(userId)
-                .eventType(FeedEvent.EventType.FRIEND) // FRIEND
-                .operation(FeedEvent.Operation.REMOVE) // REMOVE
+                .eventType(FeedEvent.EventType.FRIEND)
+                .operation(FeedEvent.Operation.REMOVE)
                 .entityId(friendId)
                 .build());
 
