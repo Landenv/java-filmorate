@@ -165,7 +165,7 @@ public class FilmDbStorage implements FilmStorage {
 
         sql.append("""
                 GROUP BY f.film_id
-                ORDER BY likes_count DESC
+                ORDER BY likes_count DESC, f.film_id ASC
                 LIMIT ?
                 """);
 
