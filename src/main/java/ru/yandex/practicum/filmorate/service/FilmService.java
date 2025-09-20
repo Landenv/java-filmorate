@@ -7,8 +7,8 @@ import ru.yandex.practicum.filmorate.dto.FilmRequest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
-import ru.yandex.practicum.filmorate.model.FeedEvent;
 import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.FeedEvent;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
@@ -168,5 +168,16 @@ public class FilmService {
                     org.springframework.http.HttpStatus.NOT_FOUND,
                     "Режиссёр " + directorId + " не найден");
         }
+    }
+
+    public List<Film> searchFilms(String query, boolean byTitle, boolean byDirector) {
+        if (query == null || query.isBlank()) {
+            throw new ValidationException("query пуст");
+        }
+        if (!byTitle && !byDirector) {
+            throw new ValidationException("by должен содержать title или director");
+        }
+        return filmDbStorage.searchFilms(query, byTitle, byDirector);
+
     }
 }

@@ -95,6 +95,30 @@ public class FilmDbStorage implements FilmStorage {
                 ORDER BY likes_count DESC, f.film_name ASC
             """;
 
+    private static final String SEARCH = """
+            SELECT f.*, m.mpa_name, m.description AS mpa_description,
+                   COALESCE(l.cnt, 0) AS likes_count
+            FROM films f
+            JOIN mpa_ratings m ON f.mpa_id = m.mpa_id
+            LEFT JOIN (
+                SELECT film_id, COUNT(user_id) AS cnt
+                FROM likes
+                GROUP BY film_id
+            ) l ON l.film_id = f.film_id
+            WHERE (
+              (? AND LOWER(f.film_name) LIKE LOWER(?))
+              OR
+              (? AND EXISTS (
+                  SELECT 1
+                  FROM film_directors fd
+                  JOIN directors d ON d.director_id = fd.director_id
+                  WHERE fd.film_id = f.film_id
+                    AND LOWER(d.director_name) LIKE LOWER(?)
+              ))
+            )
+            ORDER BY likes_count DESC, f.film_id ASC
+            """;
+
     @Override
     public Film create(Film film) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
@@ -436,5 +460,24 @@ public class FilmDbStorage implements FilmStorage {
         });
 
         return result;
+    }
+
+    @Override
+    public List<Film> searchFilms(String query, boolean byTitle, boolean byDirector) {
+        String pat = "%" + query + "%";
+
+        List<Film> films = jdbcTemplate.query(
+                SEARCH,
+                filmRowMapper,
+                byTitle, pat,
+                byDirector, pat
+        );
+
+        enrichFilmsWithLikesAndGenres(films);
+        Map<Integer, Set<Director>> dirs = loadDirectorsForFilms(
+                films.stream().map(Film::getId).toList()
+        );
+        films.forEach(f -> f.setDirectors(dirs.getOrDefault(f.getId(), new LinkedHashSet<>())));
+        return films;
     }
 }
