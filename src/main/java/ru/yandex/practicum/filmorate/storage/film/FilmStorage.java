@@ -31,4 +31,7 @@ public interface FilmStorage {
     List<Film> getFilmsDerectorByDate(int id);
 
     List<Film> getFilmsDerectorByLike(int id);
+
+    List<Film> searchFilms(String query, boolean byTitle, boolean byDirector);
+
 }

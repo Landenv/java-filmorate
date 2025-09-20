@@ -92,4 +92,12 @@ public class FilmController {
                 ? filmService.getByDirectorOrderByYear(directorId)
                 : filmService.getByDirectorOrderByLikes(directorId);
     }
+
+    @GetMapping("/search")
+    public List<Film> searchFilms(@RequestParam String query,
+                                  @RequestParam String by) {
+        boolean byTitle = by.contains("title");
+        boolean byDirector = by.contains("director");
+        return filmService.searchFilms(query, byTitle, byDirector);
+    }
 }
