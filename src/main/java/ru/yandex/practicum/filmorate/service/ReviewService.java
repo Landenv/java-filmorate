@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.dto.ReviewRequest;
 import ru.yandex.practicum.filmorate.dto.ReviewResponse;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -15,6 +16,7 @@ import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -27,10 +29,23 @@ public class ReviewService {
     private final ReviewMapper reviewMapper;
     private final FeedService feedService;
 
+    @Transactional
     public ReviewResponse create(ReviewRequest reviewRequest) {
         log.info("create review by user {}", reviewRequest.getUserId());
         userStorage.getById(reviewRequest.getUserId());
         filmStorage.getById(reviewRequest.getFilmId());
+
+        // Проверяем на существующий отзыв (для отзывов дубликаты НЕ нужны)
+        List<Review> existingReviews = reviewStorage.getByFilmId(reviewRequest.getFilmId(), Integer.MAX_VALUE);
+        Optional<Review> existingReview = existingReviews.stream()
+                .filter(r -> r.getUserId().equals(reviewRequest.getUserId()))
+                .findFirst();
+
+        if (existingReview.isPresent()) {
+            log.info("User {} already has review for film {}. Returning existing review.",
+                    reviewRequest.getUserId(), reviewRequest.getFilmId());
+            return reviewMapper.convertToResponse(existingReview.get());
+        }
 
         Review review = reviewMapper.convertToReview(reviewRequest);
         review.setUseful(0);
@@ -48,6 +63,7 @@ public class ReviewService {
         return reviewMapper.convertToResponse(created);
     }
 
+    @Transactional
     public ReviewResponse update(ReviewRequest reviewRequest) {
         log.info("update review {}", reviewRequest.getReviewId());
         if (reviewRequest.getReviewId() == null) throw new ValidationException("ID обязателен");
@@ -62,8 +78,8 @@ public class ReviewService {
         feedService.addEvent(FeedEvent.builder()
                 .timestamp(System.currentTimeMillis())
                 .userId(updated.getUserId())
-                .eventType(FeedEvent.EventType.REVIEW) // REVIEW
-                .operation(FeedEvent.Operation.UPDATE) // UPDATE
+                .eventType(FeedEvent.EventType.REVIEW)
+                .operation(FeedEvent.Operation.UPDATE)
                 .entityId(updated.getReviewId())
                 .build());
 
@@ -71,13 +87,13 @@ public class ReviewService {
         return reviewMapper.convertToResponse(updated);
     }
 
+    @Transactional
     public void delete(int id) {
         log.info("delete review {}", id);
 
-        // Получаем отзыв перед удалением
         Review review = reviewStorage.getById(id);
+        reviewStorage.delete(id);
 
-        // Создаем событие удаления
         feedService.addEvent(FeedEvent.builder()
                 .timestamp(System.currentTimeMillis())
                 .userId(review.getUserId())
@@ -85,9 +101,6 @@ public class ReviewService {
                 .operation(FeedEvent.Operation.REMOVE)
                 .entityId(id)
                 .build());
-
-        // Удаляем отзыв
-        reviewStorage.delete(id);
     }
 
     public ReviewResponse getById(int id) {
@@ -105,6 +118,7 @@ public class ReviewService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void addLike(int reviewId, int userId) {
         log.info("add like to review {} by user {}", reviewId, userId);
         Review review = reviewStorage.getById(reviewId);
@@ -116,14 +130,6 @@ public class ReviewService {
         review.getLikes().add(userId);
         review.setUseful(review.getUseful() + 1);
         reviewStorage.update(review);
-
-        feedService.addEvent(FeedEvent.builder()
-                .timestamp(System.currentTimeMillis())
-                .userId(userId)
-                .eventType(FeedEvent.EventType.REVIEW)
-                .operation(FeedEvent.Operation.ADD)
-                .entityId(reviewId)
-                .build());
     }
 
     public void addDislike(int reviewId, int userId) {
@@ -137,14 +143,6 @@ public class ReviewService {
         review.getDislikes().add(userId);
         review.setUseful(review.getUseful() - 1);
         reviewStorage.update(review);
-
-        /*feedService.addEvent(FeedEvent.builder()
-                .timestamp(System.currentTimeMillis())
-                .userId(userId)
-                .eventType(FeedEvent.EventType.REVIEW)
-                .operation(FeedEvent.Operation.ADD)
-                .entityId(reviewId)
-                .build());*/
     }
 
     public void removeLike(int reviewId, int userId) {
@@ -157,14 +155,6 @@ public class ReviewService {
         review.getLikes().remove(userId);
         review.setUseful(review.getUseful() - 1);
         reviewStorage.update(review);
-
-        /*feedService.addEvent(FeedEvent.builder()
-                .timestamp(System.currentTimeMillis())
-                .userId(userId)
-                .eventType(FeedEvent.EventType.REVIEW)
-                .operation(FeedEvent.Operation.REMOVE)
-                .entityId(reviewId)
-                .build());*/
     }
 
     public void removeDislike(int reviewId, int userId) {
@@ -177,13 +167,5 @@ public class ReviewService {
         review.getDislikes().remove(userId);
         review.setUseful(review.getUseful() + 1);
         reviewStorage.update(review);
-
-        /*feedService.addEvent(FeedEvent.builder()
-                .timestamp(System.currentTimeMillis())
-                .userId(userId)
-                .eventType(FeedEvent.EventType.REVIEW)
-                .operation(FeedEvent.Operation.REMOVE)
-                .entityId(reviewId)
-                .build());*/
     }
 }

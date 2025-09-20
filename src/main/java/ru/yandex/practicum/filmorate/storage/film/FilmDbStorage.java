@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
@@ -277,12 +278,26 @@ public class FilmDbStorage implements FilmStorage {
 
     public void addLike(int filmId, int userId) {
         String sql = "INSERT INTO likes (film_id, user_id) VALUES (?, ?)";
-        jdbcTemplate.update(sql, filmId, userId);
+        try {
+            jdbcTemplate.update(sql, filmId, userId);
+        } catch (DuplicateKeyException e) {
+            log.debug("Duplicate like: user {} already liked film {}", userId, filmId);
+            throw e; // Пробрасываем исключение для обработки в сервисе
+        }
     }
 
     public void removeLike(int filmId, int userId) {
         String sql = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
-        jdbcTemplate.update(sql, filmId, userId);
+        try {
+            int rowsAffected = jdbcTemplate.update(sql, filmId, userId);
+            if (rowsAffected == 0) {
+                log.debug("Like not found: user {} didn't like film {}", userId, filmId);
+                throw new NotFoundException("Like not found");
+            }
+        } catch (Exception e) {
+            log.debug("Error removing like: user {}, film {}", userId, filmId);
+            throw e;
+        }
     }
 
     public List<Film> getPopularFilms(int count) {

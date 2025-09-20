@@ -2,7 +2,7 @@
 Template repository for Filmorate project.
 
 ## Схема базы данных
-![Диаграмма базы данных](schema-database.png)
+![Диаграмма базы данных](src/main/resources/schema-database.png)
 
 ### Особенности схемы
 ✅ **Нормализованная структура**  

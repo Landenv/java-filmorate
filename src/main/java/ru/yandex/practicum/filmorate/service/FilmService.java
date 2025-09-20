@@ -2,7 +2,9 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.dto.FilmRequest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -29,7 +31,6 @@ public class FilmService {
     private final FilmMapper filmMapper;
     private final DirectorDbStorage directorDbStorage;
     private final FeedService feedService;
-    private final Object likeLock = new Object();
 
     public Film create(FilmRequest filmRequest) {
         log.info("Creating film");
@@ -61,15 +62,11 @@ public class FilmService {
         return filmDbStorage.getAll();
     }
 
+    @Transactional
     public void addLike(int filmId, int userId) {
         log.info("User {} likes film {}", userId, filmId);
         Film film = filmDbStorage.getById(filmId);
         userDbStorage.getById(userId);
-
-        if (film.getLikes().contains(userId)) {
-            log.info("User {} already liked film {}. Skipping...", userId, filmId);
-            return;
-        }
 
         feedService.addEvent(FeedEvent.builder()
                 .timestamp(System.currentTimeMillis())
@@ -79,18 +76,18 @@ public class FilmService {
                 .entityId(filmId)
                 .build());
 
-        filmDbStorage.addLike(filmId, userId);
+        try {
+            filmDbStorage.addLike(filmId, userId);
+        } catch (DuplicateKeyException e) {
+            log.info("User {} already liked film {}. Skipping database operation.", userId, filmId);
+        }
     }
 
+    @Transactional
     public void removeLike(int filmId, int userId) {
         log.info("User {} removes like from film {}", userId, filmId);
         Film film = filmDbStorage.getById(filmId);
         userDbStorage.getById(userId);
-
-        if (!film.getLikes().contains(userId)) {
-            log.info("User {} didn't like film {}. Skipping...", userId, filmId);
-            return;
-        }
 
         feedService.addEvent(FeedEvent.builder()
                 .timestamp(System.currentTimeMillis())
@@ -100,7 +97,11 @@ public class FilmService {
                 .entityId(filmId)
                 .build());
 
-        filmDbStorage.removeLike(filmId, userId);
+        try {
+            filmDbStorage.removeLike(filmId, userId);
+        } catch (Exception e) {
+            log.info("User {} didn't like film {}. Skipping database operation.", userId, filmId);
+        }
     }
 
     public List<Film> getPopularFilms(int count, Integer genreId, Integer year) {

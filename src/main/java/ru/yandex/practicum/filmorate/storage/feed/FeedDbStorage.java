@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.feed;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -10,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class FeedDbStorage implements FeedStorage {
@@ -24,6 +26,7 @@ public class FeedDbStorage implements FeedStorage {
     private static final String GET_FEED_BY_USER_SQL = """
             SELECT * FROM feed_events
             WHERE user_id = ?
+            ORDER BY event_id ASC
             """;
 
     @Override
