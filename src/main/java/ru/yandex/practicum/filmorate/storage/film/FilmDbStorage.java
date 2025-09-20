@@ -32,7 +32,9 @@ public class FilmDbStorage implements FilmStorage {
     private static final String GET_ALL_FILMS_SQL = """
             SELECT f.*, m.mpa_name, m.description as mpa_description
             FROM films f
-            JOIN mpa_ratings m ON f.mpa_id = m.mpa_id""";
+            JOIN mpa_ratings m ON f.mpa_id = m.mpa_id
+            ORDER BY f.film_id ASC
+            """;
 
     private static final String GET_POPULAR_FILMS_SQL = """
             SELECT f.*, m.mpa_name, m.description as mpa_description,
