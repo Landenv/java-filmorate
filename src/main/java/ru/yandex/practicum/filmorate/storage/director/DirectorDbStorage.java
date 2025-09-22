@@ -65,7 +65,7 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public Director updateDirector(Director newdirector) {
-        int rowsUpdated = jdbc.update(UPDATE, newdirector.getName(), newdirector.getId()); // n = число изменённых строк
+        int rowsUpdated = jdbc.update(UPDATE, newdirector.getName(), newdirector.getId());
         if (rowsUpdated == 0) {
             throw new EmptyResultDataAccessException(1);
         }
