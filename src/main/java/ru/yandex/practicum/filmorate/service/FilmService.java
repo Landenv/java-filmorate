@@ -152,8 +152,12 @@ public class FilmService {
     }
 
     private Set<Integer> extractGenreIds(Film film) {
-        if (film.getGenres() == null) return new HashSet<>();
-        return film.getGenres().stream().map(Genre::getId).collect(Collectors.toSet());
+        if (film.getGenres() == null) {
+            return new HashSet<>();
+        }
+        return film.getGenres().stream()
+                .map(Genre::getId)
+                .collect(Collectors.toSet());
     }
 
     public List<Film> getByDirectorOrderByYear(int directorId) {
@@ -170,8 +174,8 @@ public class FilmService {
         if (directorId <= 0) {
             throw new ValidationException("directorId должен быть > 0");
         }
-        Director d = directorDbStorage.getDirectorsById(directorId);
-        if (d == null) {
+        Director director = directorDbStorage.getDirectorsById(directorId);
+        if (director == null) {
             throw new NotFoundException("Режиссёр " + directorId + " не найден");
         }
     }
