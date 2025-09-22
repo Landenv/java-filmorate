@@ -13,7 +13,6 @@ public class ErrorResponse {
     private final LocalDateTime timestamp;
     private final List<String> errors;
 
-    // Основной конструктор
     public ErrorResponse(String error, String message) {
         this(error, message, Collections.emptyList());
     }

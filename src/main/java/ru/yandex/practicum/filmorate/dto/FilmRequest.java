@@ -5,11 +5,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.validator.MinReleaseDate;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -33,4 +35,6 @@ public class FilmRequest {
 
     @NotNull(message = "Рейтинг MPA обязателен")
     private MpaRating mpa;
+
+    private Set<Director> directors = new HashSet<>();
 }

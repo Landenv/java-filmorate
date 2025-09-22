@@ -1,17 +1,12 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
@@ -19,13 +14,10 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    private final FilmService filmService;
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
@@ -37,6 +29,12 @@ public class UserController {
     public User update(@Valid @RequestBody User user) {
         log.info("Обновлен пользователь: {}", user);
         return userService.update(user);
+    }
+
+    @DeleteMapping("/{userId}")
+    public void deleteUser(@PathVariable("userId") int id) {
+        log.info("Удаление пользователя с ID: {}", id);
+        userService.delete(id);
     }
 
     @GetMapping("/{id}")
@@ -73,4 +71,9 @@ public class UserController {
         return userService.getCommonFriends(id, otherId);
     }
 
+    @GetMapping("/{id}/recommendations")
+    public List<Film> getRecommendedFilms(
+            @PathVariable int id) {
+        return filmService.getRecommendedFilms(id);
+    }
 }

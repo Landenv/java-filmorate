@@ -41,6 +41,12 @@ public class FilmController {
         return film;
     }
 
+    @DeleteMapping("/{id}")
+    public void deleteFilm(@PathVariable int id) {
+        log.info("Удаление фильма с ID: {}", id);
+        filmService.delete(id);
+    }
+
     @GetMapping("/{id}")
     public Film getById(@PathVariable int id) {
         return filmService.getById(id);
@@ -63,8 +69,35 @@ public class FilmController {
 
     @GetMapping("/popular")
     public List<Film> getPopular(
-            @RequestParam(defaultValue = DEFAULT_POPULAR_FILMS_COUNT) int count) {
-        return filmService.getPopularFilms(count);
+            @RequestParam(defaultValue = DEFAULT_POPULAR_FILMS_COUNT) int count,
+            @RequestParam(required = false) Integer genreId,
+            @RequestParam(required = false) Integer year) {
+        return filmService.getPopularFilms(count, genreId, year);
     }
 
+    @GetMapping("/common")
+    public List<Film> getCommon(
+            @RequestParam int userId,
+            @RequestParam int friendId) {
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getByDirectorId(@PathVariable int directorId,
+                                      @RequestParam(defaultValue = "likes") String sortBy) {
+        if (!"year".equals(sortBy) && !"likes".equals(sortBy)) {
+            throw new ValidationException("sortBy must be 'year' or 'likes'");
+        }
+        return "year".equals(sortBy)
+                ? filmService.getByDirectorOrderByYear(directorId)
+                : filmService.getByDirectorOrderByLikes(directorId);
+    }
+
+    @GetMapping("/search")
+    public List<Film> searchFilms(@RequestParam String query,
+                                  @RequestParam String by) {
+        boolean byTitle = by.contains("title");
+        boolean byDirector = by.contains("director");
+        return filmService.searchFilms(query, byTitle, byDirector);
+    }
 }

@@ -38,4 +38,7 @@ public class Film {
 
     @NotNull(message = "Рейтинг MPA обязателен")
     private MpaRating mpa;
+
+    @Builder.Default
+    private Set<Director> directors = new HashSet<>();
 }

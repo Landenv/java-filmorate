@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.HashMap;
@@ -81,7 +80,11 @@ public class UserDbStorage implements UserStorage {
     @Override
     public void delete(int id) {
         String sql = "DELETE FROM users WHERE user_id = ?";
-        jdbcTemplate.update(sql, id);
+        int rowsDeleted = jdbcTemplate.update(sql, id);
+
+        if (rowsDeleted == 0) {
+            throw new NotFoundException("Пользователь с ID " + id + " не найден");
+        }
     }
 
     private void loadSubscriptions(User user) {
